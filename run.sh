@@ -1,4 +1,6 @@
 #!/bin/bash
 
-exec python3 /app/bot/main.py &
-exec python3 python3 -m flask run --host=0.0.0.0
+export FLASK_APP=/app/connections_scoreboard/app
+
+python3 -u /app/connections_scoreboard/bot/main.py &
+python3 -m flask run --host=0.0.0.0
