@@ -1,19 +1,22 @@
 from flask import Flask
 
 from connections_scoreboard.app.config import Config
-from connections_scoreboard.app.models import db
+from connections_scoreboard.app.db import db
 
 
-app = Flask(__name__)
+def create_app():
+    app = Flask(__name__)
 
-app.config.from_object(Config)
+    app.config.from_object(Config)
 
-db.init_app(app)
+    db.init_app(app)
 
-with app.app_context():
-    db.create_all()
+    with app.app_context():
+        # db.drop_all()
+        db.create_all()
 
-from .routes import bp as main_bp
+    from .routes import bp as main_bp
 
+    app.register_blueprint(main_bp)
 
-app.register_blueprint(main_bp)
+    return app

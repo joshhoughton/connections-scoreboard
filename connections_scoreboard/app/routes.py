@@ -1,8 +1,7 @@
-from flask import Blueprint, request
+from flask import Blueprint
 from tabulate import tabulate
 
-from connections_scoreboard.app import db
-from connections_scoreboard.app.models import Message
+from connections_scoreboard.app.db import Message
 
 
 bp = Blueprint("main", __name__)
@@ -14,17 +13,4 @@ def show_messages():
     table = []
     for message in messages:
         table.append([message.id, message.content])
-    return tabulate(table, headers=["ID", "Content"], tablefmt="ascii")
-
-
-@bp.route("/submit_result", methods=["POST"])
-def submit_result():
-    if request.method == "POST":
-        content = request.form.get("content")
-        id = request.form.get("id")  # Add id parameter
-        message = Message(content=content, id=id)  # Pass id to Message constructor
-        db.session.add(message)
-        db.session.commit()
-        return "Message submitted!"
-    else:
-        return "Invalid request method!"
+    return tabulate(table, headers=["ID", "Content"], tablefmt="html")
