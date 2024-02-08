@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Connections Scoreboard</h1>
+
+
+<table class="table scores-table">
+        <thead>
+            <tr>
+                <th>Puzzle #</th>
+                {% for key in data[0].keys()|sort if key != 'puzzle_number' %}
+                    <th>{{ key }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in data %}
+                {% set row_without_puzzle_number = dict(row.items()|rejectattr('0', 'equalto', 'puzzle_number')) %}
+                <tr>
+                    <td><a href="https://connections.swellgarfo.com/nyt/{{ row['puzzle_number'] }}">{{ row['puzzle_number'] }}</a></td>
+                    {% for key in row.keys()|sort if key != 'puzzle_number' %}
+                        {% if row[key] == (row_without_puzzle_number.values()|map('int')|list)|min %}
+                            <td class="user-score best-user-score">{{ row[key] }}</td>
+                        {% else %}
+                            <td class="user-score">{{ row[key] }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+
+{% block scripts %}
+        {{ super() }}
+        <script src="{{ url_for('static', filename='js/table-functions.js') }}"></script>
+{% endblock %}

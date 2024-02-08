@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+
+body {
+    background-color: rgb(34, 34, 34);
+    color: white;
+}
+
+.container-xl {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.table tbody, .table th, .table td {
+    background-color: inherit;
+    color: inherit;
+}
+
+.table th:first-child,
+.table td:first-child {
+    font-weight: bold;
+}
+
+td.best-user-score {
+    position: relative;
+}
+
+td.best-user-score::after {
+    content: "\1F3C6"; /* Unicode for gold trophy icon */
+    display: inline-block;
+    margin-left: 5px;
+    color: gold;
+}
+
+@media (min-width: 1200px) {
+    .container-xl {
+        max-width: 70%;
+    }
+}

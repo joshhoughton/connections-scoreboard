@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        {% block head %}
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        {% block styles %}
+            <!-- Bootstrap CSS -->
+            {{ bootstrap.load_css() }}
+            <!-- Custom CSS -->
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+        {% endblock %}
+
+        <title>Your page title</title>
+        {% endblock %}
+    </head>
+    <body>
+        <div class="container-xl">
+            <!-- Your page content -->
+            {% block content %}{% endblock %}
+        </div>
+
+        {% block scripts %}
+            <!-- Optional JavaScript -->
+
+            {{ bootstrap.load_js() }}
+
+            <!-- Include jQuery from a CDN -->
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+            <script src="{{ url_for('static', filename='js/background-color.js') }}"></script>
+        {% endblock %}
+    </body>
+</html>
