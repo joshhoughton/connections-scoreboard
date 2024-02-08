@@ -1,16 +1,6 @@
-from sqlalchemy import Column, DateTime, ForeignKey, String
+from sqlalchemy import Column, DateTime, Integer, String
 
 from connections_scoreboard.app.db import db
-
-
-class Message(db.Model):
-    __tablename__ = "messages"
-
-    id = Column(String, primary_key=True)
-    content = Column(String)
-    created = Column(DateTime)
-    user_id = Column(String, ForeignKey("users.id"))
-    user = db.relationship("User", backref="messages")
 
 
 class User(db.Model):
@@ -21,12 +11,22 @@ class User(db.Model):
     global_name = Column(String)
     avatar_url = Column(String)
 
+    @property
+    def name(self):
+        return self.nick or self.global_name
+
 
 class Result(db.Model):
     __tablename__ = "results"
 
-    id = Column(String, primary_key=True)
-    content = Column(String)
-    date = Column(DateTime)
+    message_id = Column(String, primary_key=True)
+    raw_content = Column(String)
+    created = Column(DateTime)
+    puzzle_number = Column(Integer)
+    attempt_count = Column(Integer)
     user_id = Column(String, db.ForeignKey("users.id"))
     user = db.relationship("User", backref="results")
+
+    @property
+    def incorrect_count(self):
+        return self.attempt_count - 4
