@@ -2,15 +2,16 @@ import os
 
 import discord
 
-from connections_scoreboard.app import create_app, db
-from connections_scoreboard.app.db.models import Message, User
+from connections_scoreboard.app import create_app
+from connections_scoreboard.bot._message_handler import handle_message
 
 
 app = create_app()
 
+
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
 DISCORD_GUILD = os.getenv("DISCORD_GUILD")
-DISCORD_CHANNEL = os.getenv("DISCORD_CHANNEL")
+DISCORD_CHANNEL = int(os.getenv("DISCORD_CHANNEL"))
 
 if DISCORD_TOKEN is None:
     raise ValueError("DISCORD_TOKEN is not set in the environment variables.")
@@ -24,57 +25,31 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f"We have logged in as {client.user}")
+    channel = client.get_channel(DISCORD_CHANNEL)
+
+    if channel is not None:
+        async for message in channel.history(limit=500):
+            handle_message(message)
 
 
 @client.event
 async def on_message(message: discord.Message):
+    message_id = str(message.id)
+
     if message.author == client.user:
+        app.logger.debug(f"{message_id}: ignoring message from self")
         return
 
-    with app.app_context():
-        user_id = str(message.author.id)
-        nick = (
-            message.author.nick if isinstance(message.author, discord.Member) else None
-        )
-        global_name = message.author.name
-        avatar_url = str(message.id)
-        message_id = str(message.id)
-        message_content = message.content
-        message_timestamp = str(message.created_at)
+    if not isinstance(message.channel, discord.TextChannel):
+        app.logger.debug(f"{message_id}: ignoring message from non-text channel")
+        return
 
-        user = User.query.filter_by(id=user_id).first()
+    if message.channel.id != DISCORD_CHANNEL:
+        app.logger.debug(f"{message_id}: ignoring message from non-scoreboard channel")
+        return
 
-        if user:
-            pass
-        else:
-            user = User(
-                id=user_id, nick=nick, global_name=global_name, avatar_url=avatar_url
-            )
-
-        # Check if id already exists
-        if Message.query.filter_by(id=message_id).first():
-            return "ID already exists!"
-
-        message = Message(
-            id=message_id,
-            content=message_content,
-            created=message_timestamp,
-            user_id=user.id,
-        )
-
-        db.session.add_all([user, message])
-        db.session.commit()
-    # logging.debug(f"Data to be sent: {data}")
-
-    # # Send the POST request to your Flask server
-    # response = requests.post("http://localhost:5000/submit_result", json=data)
-
-    # # Check the response status code
-    # if response.status_code == 200:
-    #     print("Data sent successfully!")
-    #     print(response.text)
-    # else:
-    #     print("Failed to send data.")
+    handle_message(message)
 
 
-client.run(DISCORD_TOKEN)
+if __name__ == "__main__":
+    client.run(DISCORD_TOKEN)
